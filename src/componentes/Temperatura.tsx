@@ -7,27 +7,21 @@ export default function Temperatura({ actual, min, max, indiceDia }: any) {
     indiceDia === 1 ? "HOY" :
     "MAÑANA";
 
-  return (
-    <View style={styles.container}>
-      
-      <Text testID="temp-current" style={styles.main}>
-        {actual}°
-      </Text>
+          return (
+            <View style={styles.container}>
+              
+              <Text testID="temp-current">
+            {`${actual}°`}
+          </Text> 
 
-      {/* 🔥 MIN Y MAX DEBAJO Y LEGIBLES */}
-      <View style={styles.row}>
-        <Text testID="temp-min" style={styles.side}>
-          {min}°
+              <Text testID="temp-min">
+          {`${min}°`}
         </Text>
 
-        <Text style={styles.separator}>|</Text>
-
-        <Text testID="temp-max" style={styles.side}>
-          {max}°
+        <Text testID="temp-max">
+          {`${max}°`}
         </Text>
-      </View>
-
-      {/* 🔥 TEXTO DIA (AYER HOY MAÑANA) */}
+              {}
       <Text style={styles.day}>
         {textoDia}
       </Text>
