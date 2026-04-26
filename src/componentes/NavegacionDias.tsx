@@ -1,30 +1,45 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 
-export default function NavegacionDias({ fecha, onPrev, onNext }: any) {
+export default function NavegacionDias({
+  fechaPrev,
+  fechaActual,
+  fechaNext,
+  onPrev,
+  onNext
+}: any) {
   return (
     <View style={styles.container}>
       
-      <View style={styles.row}>
-        <TouchableOpacity testID="button-prev-day" onPress={onPrev}>
-          <Text style={styles.arrow}>{"<"}</Text>
-        </TouchableOpacity>
+      <TouchableOpacity onPress={onPrev}>
+        <Text style={styles.side}>{`< ${fechaPrev}`}</Text>
+      </TouchableOpacity>
 
-        <Text testID="navigation-current-day" style={styles.date}>
-          {fecha}
-        </Text>
+      <Text style={styles.center} testID="navigation-current-day">
+        {fechaActual}
+      </Text>
 
-        <TouchableOpacity testID="button-next-day" onPress={onNext}>
-          <Text style={styles.arrow}>{">"}</Text>
-        </TouchableOpacity>
-      </View>
+      <TouchableOpacity onPress={onNext} testID="button-next-day">
+        <Text style={styles.side}>{`${fechaNext} >`}</Text>
+      </TouchableOpacity>
 
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center", marginBottom: 20 },
-  row: { flexDirection: "row", alignItems: "center" },
-  arrow: { fontSize: 20, marginHorizontal: 10 },
-  date: { fontSize: 16, letterSpacing: 2 },
+  container: {
+    width: "100%",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 30,
+  },
+  center: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  side: {
+    fontSize: 14,
+    color: "#999",
+  },
 });

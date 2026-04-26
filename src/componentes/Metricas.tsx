@@ -5,23 +5,9 @@ export default function Metricas({ humedad, presion, viento }: any) {
   return (
     <View style={styles.container}>
       
-      <ItemMetrica 
-        valor={`${humedad}%`} 
-        label="Humedad" 
-        tipo="humedad"
-      />
-
-      <ItemMetrica 
-        valor={`${presion} hPa`} 
-        label="Presión" 
-        tipo="presion"
-      />
-
-      <ItemMetrica 
-        valor={`${viento} km/h`} 
-        label="Viento" 
-        tipo="viento"
-      />
+      <ItemMetrica tipo="humedad" valor={`${Math.round(humedad)}%`} />
+      <ItemMetrica tipo="presion" valor={`${Math.round(presion)} hPa`} />
+      <ItemMetrica tipo="viento" valor={`${Math.round(viento)} km/h`} />
 
     </View>
   );
@@ -29,9 +15,10 @@ export default function Metricas({ humedad, presion, viento }: any) {
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row", 
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 20,
+    flexDirection: "column",
+    alignItems: "flex-start",
+    width: "100%",
+    paddingLeft: 30,
+    marginTop: 0,
   },
 });
