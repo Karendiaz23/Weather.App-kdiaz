@@ -1,92 +1,120 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import App from '../app/index';
 
-global.fetch = jest.fn(() =>
-  Promise.resolve({
-    json: () =>
-      Promise.resolve({
-        location: { name: 'Tokyo' },
-        current: { pressure_mb: 1012 },
-        forecast: {
-          forecastday: [
-            {
-              date: '2026-04-22',
-              day: {
-                avgtemp_c: 25,
-                mintemp_c: 20,
-                maxtemp_c: 28,
-                avghumidity: 60,
-                maxwind_kph: 15,
-                condition: { text: 'Sunny' },
-              },
-            },
-            {
-              date: '2026-04-23',
-              day: {
-                avgtemp_c: 26,
-                mintemp_c: 21,
-                maxtemp_c: 29,
-                avghumidity: 55,
-                maxwind_kph: 10,
-                condition: { text: 'Cloudy' },
-              },
-            },
-            {
-              date: '2026-04-24',
-              day: {
-                avgtemp_c: 22,
-                mintemp_c: 18,
-                maxtemp_c: 25,
-                avghumidity: 70,
-                maxwind_kph: 20,
-                condition: { text: 'Rain' },
-              },
-            },
-          ],
+const mockDatosClima = {
+  location: { name: 'BUENOS AIRES' },
+  current: { pressure_mb: 1016 },
+  forecast: {
+    forecastday: [
+      {
+        day: {
+          avgtemp_c: 25,
+          mintemp_c: 20,
+          maxtemp_c: 28,
+          avghumidity: 60,
+          maxwind_kph: 15,
+          condition: { text: 'Sunny' },
         },
-      }),
-  })
-) as jest.Mock;
+      },
+      {
+        day: {
+          avgtemp_c: 14,
+          mintemp_c: 11,
+          maxtemp_c: 19,
+          avghumidity: 67,
+          maxwind_kph: 23,
+          condition: { text: 'Cloudy' },
+        },
+      },
+      {
+        day: {
+          avgtemp_c: 13,
+          mintemp_c: 10,
+          maxtemp_c: 18,
+          avghumidity: 70,
+          maxwind_kph: 20,
+          condition: { text: 'Rain' },
+        },
+      },
+    ],
+  },
+};
 
-describe('Weather App', () => {
+beforeEach(() => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      json: () => Promise.resolve(mockDatosClima),
+    })
+  ) as jest.Mock;
+});
 
-  test('renderiza la pantalla principal', async () => {
-    const { findByTestId } = render(<App />);
-    expect(await findByTestId('screen-weather')).toBeTruthy();
+afterEach(() => {
+  jest.clearAllMocks();
+});
+
+describe('Weather App ', () => {
+
+  test('renderiza pantalla principal', async () => {
+    const { getByTestId } = render(<App />);
+
+    await waitFor(() => {
+      expect(getByTestId('screen-weather')).toBeTruthy();
+    });
   });
 
-  test('muestra la ciudad', async () => {
-    const { findByTestId } = render(<App />);
-    const ciudad = await findByTestId('header-city');
-    expect(ciudad.props.children).toBe('TOKYO');
+  test('muestra la ciudad correctamente', async () => {
+    const { getByTestId } = render(<App />);
+
+    await waitFor(() => {
+      expect(getByTestId('header-city'))
+        .toHaveTextContent('BUENOS AIRES');
+    });
   });
 
-  test('muestra la temperatura actual', async () => {
-    const { findByTestId } = render(<App />);
-    const temp = await findByTestId('temp-current');
-    expect(temp.props.children).toMatch(/°/);
+  test('muestra temperatura actual', async () => {
+    const { getByTestId } = render(<App />);
+
+    await waitFor(() => {
+      expect(getByTestId('temp-current'))
+        .toHaveTextContent('14°');
+    });
   });
 
-  test('muestra temperatura mínima y máxima', async () => {
-    const { findByTestId } = render(<App />);
-    expect(await findByTestId('temp-min')).toBeTruthy();
-    expect(await findByTestId('temp-max')).toBeTruthy();
+  test('muestra min y max', async () => {
+    const { getByTestId } = render(<App />);
+
+    await waitFor(() => {
+      expect(getByTestId('temp-min'))
+        .toHaveTextContent('11°');
+
+      expect(getByTestId('temp-max'))
+        .toHaveTextContent('19°');
+    });
   });
 
-  test('permite navegar al día siguiente', async () => {
-    const { findByTestId } = render(<App />);
-    
-    const nextBtn = await findByTestId('button-next-day');
-    fireEvent.press(nextBtn);
+  test('navega al siguiente día', async () => {
+    const { getByTestId } = render(<App />);
 
-    expect(await findByTestId('navigation-current-day')).toBeTruthy();
+    const btn = await waitFor(() =>
+      getByTestId('button-next-day')
+    );
+
+    fireEvent.press(btn);
+
+    await waitFor(() => {
+      expect(getByTestId('temp-current'))
+        .toHaveTextContent('13°');
+    });
   });
 
-  test('renderiza al menos 3 métricas', async () => {
-    const { findAllByTestId } = render(<App />);
-    const metrics = await findAllByTestId('metric-item');
-    expect(metrics.length).toBeGreaterThanOrEqual(3);
+  test('renderiza métricas', async () => {
+    const { getAllByTestId } = render(<App />);
+
+    await waitFor(() => {
+      expect(getAllByTestId('metric-item').length)
+        .toBeGreaterThanOrEqual(3);
+    });
   });
 
 });

@@ -1,6 +1,6 @@
 import { View, Text, StyleSheet } from "react-native";
 
-export default function Temperatura({ actual, min, max }: any) {
+export default function Temperatura({ actual, min, max, dia }: any) {
   return (
     <View style={styles.container}>
 
@@ -20,7 +20,7 @@ export default function Temperatura({ actual, min, max }: any) {
         <Text style={styles.label}>MÁXIMO</Text>
       </View>
 
-      <Text style={styles.hoy}>HOY</Text>
+      <Text style={styles.hoy}>{dia}</Text>
 
     </View>
   );

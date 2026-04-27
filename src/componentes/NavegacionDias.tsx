@@ -11,7 +11,9 @@ export default function NavegacionDias({
     <View style={styles.container}>
       
       <TouchableOpacity onPress={onPrev}>
-        <Text style={styles.side}>{`< ${fechaPrev}`}</Text>
+        <Text style={styles.side}>
+          {`< ${fechaPrev}`}
+        </Text>
       </TouchableOpacity>
 
       <Text style={styles.center} testID="navigation-current-day">
@@ -19,7 +21,9 @@ export default function NavegacionDias({
       </Text>
 
       <TouchableOpacity onPress={onNext} testID="button-next-day">
-        <Text style={styles.side}>{`${fechaNext} >`}</Text>
+        <Text style={styles.side}>
+          {`${fechaNext} >`}
+        </Text>
       </TouchableOpacity>
 
     </View>

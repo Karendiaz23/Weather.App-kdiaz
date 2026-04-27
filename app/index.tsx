@@ -30,22 +30,28 @@ export default function WeatherApp() {
   const dias = datosClima.forecast.forecastday;
   const clima = dias[indiceDia];
 
-  const getFecha = (n: number) => {
-    const f = new Date();
-    f.setDate(f.getDate() + n);
-    return `${f.getMonth() + 1}/${f.getDate()}`;
-  };
+const getFecha = (offset: number) => {
+  const base = new Date();
+  base.setDate(base.getDate() + (indiceDia + offset - 1));
+  return `${base.getMonth() + 1}/${base.getDate()}`;
+};
+const fechaPrev =
+  indiceDia > 0 ? getFecha(-1) : "";
 
+const fechaActual = getFecha(0);
+
+const fechaNext =
+  indiceDia < dias.length - 1 ? getFecha(1) : "";
   return (
     <View style={styles.container} testID="screen-weather">
       <View style={styles.top}>
         <NavegacionDias
-          fechaPrev={getFecha(-1)}
-          fechaActual={getFecha(0)}
-          fechaNext={getFecha(1)}
-          onPrev={() => indiceDia > 0 && setIndiceDia(indiceDia - 1)}
-          onNext={() => indiceDia < dias.length - 1 && setIndiceDia(indiceDia + 1)}
-        />
+        fechaPrev={fechaPrev}
+        fechaActual={fechaActual}
+        fechaNext={fechaNext}
+        onPrev={() => indiceDia > 0 && setIndiceDia(indiceDia - 1)}
+        onNext={() => indiceDia < dias.length - 1 && setIndiceDia(indiceDia + 1)}
+      />
         <Encabezado ciudad={datosClima.location.name} />
       </View>
 
@@ -59,11 +65,12 @@ export default function WeatherApp() {
           presion={datosClima.current.pressure_mb}
           viento={clima.day.maxwind_kph}
         />
-        <Temperatura
-          actual={Math.round(clima.day.avgtemp_c)}
-          min={Math.round(clima.day.mintemp_c)}
-          max={Math.round(clima.day.maxtemp_c)}
-        />
+       <Temperatura
+        actual={Math.round(clima.day.avgtemp_c)}
+        min={Math.round(clima.day.mintemp_c)}
+        max={Math.round(clima.day.maxtemp_c)}
+        dia={indiceDia === 0 ? "AYER" : indiceDia === 1 ? "HOY" : "MAÑANA"}
+      />  
       </View>
     </View>
   );
