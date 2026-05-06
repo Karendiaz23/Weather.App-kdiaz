@@ -1,10 +1,24 @@
 import React from 'react';
-import { render, fireEvent } from '@testing-library/react-native';
+import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import App from '../app/index';
+
+jest.mock('expo-location', () => ({
+  requestForegroundPermissionsAsync: jest.fn(() =>
+    Promise.resolve({ status: 'granted' })
+  ),
+  getCurrentPositionAsync: jest.fn(() =>
+    Promise.resolve({
+      coords: {
+        latitude: -34.6,
+        longitude: -58.4,
+      },
+    })
+  ),
+}));
 
 const mockDatosClima = {
   location: { name: 'BUENOS AIRES' },
-  current: { pressure_mb: 1016 },
+  current: { temp_c: 25, pressure_mb: 1016 },
   forecast: {
     forecastday: [
       {
@@ -89,9 +103,10 @@ describe('Weather App', () => {
     const btn = await findByTestId('button-next-day');
     fireEvent.press(btn);
 
-    const temp = await findByTestId('temp-current');
-
-    expect(temp.props.children).toContain('14°');
+    await waitFor(async () => {
+      const temp = await findByTestId('temp-current');
+      expect(temp.props.children).toContain('14°');
+    });
   });
 
   test('renderiza métricas', async () => {

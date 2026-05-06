@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, ActivityIndicator } from 'react-native';
 import { useNavigation } from "@react-navigation/native";
+import * as Location from 'expo-location';
 
 import Encabezado from '../src/componentes/Encabezado';
 import NavegacionDias from '../src/componentes/NavegacionDias';
@@ -10,8 +11,6 @@ import Metricas from '../src/componentes/Metricas';
 
 export default function WeatherApp() {
   const [datosClima, setDatosClima] = useState<any>(null);
-
-  
   const [indiceDia, setIndiceDia] = useState(0);
 
   let navigation: any;
@@ -22,10 +21,38 @@ export default function WeatherApp() {
   useEffect(() => {
     navigation?.setOptions({ headerShown: false });
 
-    fetch(`https://api.weatherapi.com/v1/forecast.json?key=7c76ad6157484f3ebc8184040262304&q=Buenos Aires&days=3&lang=es`)
-      .then(r => r.json())
-      .then(setDatosClima)
-      .catch(() => {});
+    const obtenerClima = async () => {
+      try {
+        const { status } = await Location.requestForegroundPermissionsAsync();
+
+        if (status !== 'granted') {
+          console.log("Permiso denegado, usando Buenos Aires");
+
+          const res = await fetch(
+            `https://api.weatherapi.com/v1/forecast.json?key=7c76ad6157484f3ebc8184040262304&q=Buenos Aires&days=3&lang=es`
+          );
+          const data = await res.json();
+          setDatosClima(data);
+          return;
+        }
+
+        const location = await Location.getCurrentPositionAsync({});
+        const lat = location.coords.latitude;
+        const lon = location.coords.longitude;
+
+        const res = await fetch(
+          `https://api.weatherapi.com/v1/forecast.json?key=7c76ad6157484f3ebc8184040262304&q=${lat},${lon}&days=3&lang=es`
+        );
+
+        const data = await res.json();
+        setDatosClima(data);
+
+      } catch (error) {
+        console.log("Error:", error);
+      }
+    };
+
+    obtenerClima();
   }, []);
 
   if (!datosClima) {
@@ -53,8 +80,6 @@ export default function WeatherApp() {
           fechaPrev={fechaPrev}
           fechaActual={fechaActual}
           fechaNext={fechaNext}
-          
-          // 🔥 FIX: setState funcional (evita bugs de tests)
           onPrev={() => setIndiceDia(prev => Math.max(prev - 1, 0))}
           onNext={() => setIndiceDia(prev => Math.min(prev + 1, dias.length - 1))}
         />
@@ -74,7 +99,11 @@ export default function WeatherApp() {
         />
 
         <Temperatura
-          actual={Math.round(clima.day.avgtemp_c)}
+          actual={
+            indiceDia === 0
+              ? Math.round(datosClima.current.temp_c) 
+              : Math.round(clima.day.avgtemp_c)
+          }
           min={Math.round(clima.day.mintemp_c)}
           max={Math.round(clima.day.maxtemp_c)}
           dia={indiceDia === 0 ? "AYER" : indiceDia === 1 ? "HOY" : "MAÑANA"}
